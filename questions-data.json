@@ -1,0 +1,734 @@
+{
+  "questions": [
+    {
+      "cat": "Expediente y relación laboral",
+      "weight": 4,
+      "text": "¿Cada colaborador tiene hoy un expediente individual completo y actualizado?",
+      "opts": [
+        [
+          "Sí, todos y actualizados",
+          0
+        ],
+        [
+          "Sí, pero varios están desactualizados",
+          1
+        ],
+        [
+          "Existen expedientes sueltos, sin orden",
+          2
+        ],
+        [
+          "No llevamos expedientes individuales",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Expedientes incompletos o desactualizados",
+        "text": "Ficha 360° por colaborador, con historial completo y edición por pestañas — siempre al día."
+      }
+    },
+    {
+      "cat": "Expediente y relación laboral",
+      "weight": 2,
+      "text": "¿Puede demostrar con un documento la fecha de ingreso exacta de cualquier colaborador?",
+      "opts": [
+        [
+          "Sí, para todos",
+          0
+        ],
+        [
+          "Para la mayoría",
+          1
+        ],
+        [
+          "Solo de memoria o de forma verbal",
+          2
+        ],
+        [
+          "No podría demostrarlo",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Fecha de ingreso sin respaldo documental",
+        "text": "Fecha de ingreso registrada en la Ficha 360° de cada colaborador."
+      }
+    },
+    {
+      "cat": "Expediente y relación laboral",
+      "weight": 4,
+      "text": "Si tuviera que reconstruir hoy toda la historia laboral de una persona, ¿podría hacerlo con documentos, o dependería de la memoria de alguien?",
+      "opts": [
+        [
+          "Con documentos, sin depender de nadie",
+          0
+        ],
+        [
+          "Con documentos, pero incompletos",
+          1
+        ],
+        [
+          "Dependería en buena parte de la memoria de alguien",
+          2
+        ],
+        [
+          "Dependería completamente de una persona",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "La historia laboral depende de una persona, no de un sistema",
+        "text": "Ficha 360° + bitácora de Observaciones: la historia queda en el sistema, no en la cabeza de nadie."
+      }
+    },
+    {
+      "cat": "Contratos y condiciones pactadas",
+      "weight": 4,
+      "text": "¿Todos sus colaboradores tienen contrato de trabajo firmado?",
+      "opts": [
+        [
+          "Sí, el 100%",
+          0
+        ],
+        [
+          "La mayoría",
+          1
+        ],
+        [
+          "Menos de la mitad",
+          2
+        ],
+        [
+          "No usamos contratos escritos",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Colaboradores sin contrato firmado",
+        "text": "Alerta en el Panel de Atención cuando un expediente no tiene contrato asociado."
+      }
+    },
+    {
+      "cat": "Contratos y condiciones pactadas",
+      "weight": 4,
+      "text": "¿Lo que dice el contrato de cada persona coincide con las condiciones reales bajo las que trabaja hoy (jornada, salario, puesto)?",
+      "opts": [
+        [
+          "Sí, siempre coinciden",
+          0
+        ],
+        [
+          "Casi siempre",
+          1
+        ],
+        [
+          "Hay varias discrepancias",
+          2
+        ],
+        [
+          "No lo hemos revisado nunca",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Contrato desactualizado frente a la realidad",
+        "text": "Salario, jornada y puesto se gestionan desde la misma Ficha 360°, para que el dato real y el contractual no se separen."
+      }
+    },
+    {
+      "cat": "Contratos y condiciones pactadas",
+      "weight": 2,
+      "text": "¿Tiene contratos a plazo fijo próximos a vencer sin una alerta que se lo recuerde?",
+      "opts": [
+        [
+          "No tenemos ese riesgo o no aplica",
+          0
+        ],
+        [
+          "Lo controlamos manualmente",
+          1
+        ],
+        [
+          "A veces se nos pasa la fecha",
+          2
+        ],
+        [
+          "No llevamos ese control",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Vencimientos de contrato sin alerta automática",
+        "text": "Hoy este control se resuelve de forma manual — identificado como mejora futura del expediente digital."
+      }
+    },
+    {
+      "cat": "Jornada y horas extra · Art. 58",
+      "weight": 4,
+      "text": "¿Registra formalmente las horas extraordinarias que trabaja cada persona?",
+      "opts": [
+        [
+          "Sí, siempre",
+          0
+        ],
+        [
+          "La mayoría de las veces",
+          1
+        ],
+        [
+          "Solo quedan anotadas informalmente",
+          2
+        ],
+        [
+          "No llevamos registro",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Horas extra sin registro formal",
+        "text": "Registro de horas extraordinarias por colaborador, con historial completo."
+      }
+    },
+    {
+      "cat": "Jornada y horas extra · Art. 58",
+      "weight": 4,
+      "text": "¿Sabe si alguna jornada combinada (ordinaria + extra) ha superado el límite legal de 12 horas en un mismo día?",
+      "opts": [
+        [
+          "No, lo tenemos controlado",
+          0
+        ],
+        [
+          "Creo que no, pero no estoy seguro",
+          1
+        ],
+        [
+          "Puede que haya pasado",
+          2
+        ],
+        [
+          "Sí, ha pasado y no lo detectamos a tiempo",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Jornadas por encima del límite legal",
+        "text": "Alerta automática al superar las 12 horas combinadas en un mismo día."
+      }
+    },
+    {
+      "cat": "Jornada y horas extra · Art. 58",
+      "weight": 4,
+      "text": "Si tuviera que reconstruir la jornada efectiva de alguien ante una disputa, ¿podría hacerlo con registros?",
+      "opts": [
+        [
+          "Sí, sin problema",
+          0
+        ],
+        [
+          "Con algo de trabajo",
+          1
+        ],
+        [
+          "Con mucha dificultad",
+          2
+        ],
+        [
+          "No tenemos esos registros",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Jornada efectiva no reconstruible",
+        "text": "Registro de horas y ausencias centralizado en Mi Tiempo, listo para consulta en cualquier momento."
+      }
+    },
+    {
+      "cat": "Vacaciones · Arts. 153–159, 161",
+      "weight": 4,
+      "text": "¿Sabe con exactitud cuántos días de vacaciones tiene acumulados cada colaborador, hoy mismo?",
+      "opts": [
+        [
+          "Sí, con exactitud",
+          0
+        ],
+        [
+          "Más o menos",
+          1
+        ],
+        [
+          "Solo si lo calculo a mano",
+          2
+        ],
+        [
+          "No lo sé",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Saldo de vacaciones sin control",
+        "text": "Cálculo automático del saldo por colaborador, según lo generado y disfrutado."
+      }
+    },
+    {
+      "cat": "Vacaciones · Arts. 158–159",
+      "weight": 2,
+      "text": "¿Alguien en su equipo tiene 30 días o más de vacaciones sin disfrutar?",
+      "opts": [
+        [
+          "No, nadie",
+          0
+        ],
+        [
+          "No estoy seguro",
+          1
+        ],
+        [
+          "Creo que sí, alguna persona",
+          2
+        ],
+        [
+          "Sí, varias personas",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Acumulación de vacaciones sin resolver",
+        "text": "Alerta automática al llegar a 30 y 45 días acumulados, antes de que se vuelva un problema legal."
+      }
+    },
+    {
+      "cat": "Vacaciones · Arts. 153–159",
+      "weight": 2,
+      "text": "¿La Gerencia sabe hoy, sin preguntarle a nadie, cuántos días de vacaciones acumulados tiene la empresa en total?",
+      "opts": [
+        [
+          "Sí, lo tengo a la mano",
+          0
+        ],
+        [
+          "Lo podría estimar",
+          1
+        ],
+        [
+          "Tendría que consultarlo con alguien",
+          2
+        ],
+        [
+          "No tengo idea",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Sin visibilidad consolidada de vacaciones",
+        "text": "Vista consolidada de saldos de vacaciones por colaborador y por área."
+      }
+    },
+    {
+      "cat": "Ausencias e incapacidades",
+      "weight": 2,
+      "text": "¿Las incapacidades médicas quedan respaldadas con el documento correspondiente en el expediente?",
+      "opts": [
+        [
+          "Sí, siempre",
+          0
+        ],
+        [
+          "Casi siempre",
+          1
+        ],
+        [
+          "A veces se pierden",
+          2
+        ],
+        [
+          "No las archivamos formalmente",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Incapacidades sin respaldo documental",
+        "text": "Documentos de incapacidad archivados dentro de Mis Documentos en la Ficha 360°."
+      }
+    },
+    {
+      "cat": "Ausencias e incapacidades",
+      "weight": 4,
+      "text": "¿Las decisiones sobre una persona con ausencias frecuentes se basan en hechos documentados, y no solo en percepción?",
+      "opts": [
+        [
+          "Siempre, con documentación",
+          0
+        ],
+        [
+          "Casi siempre",
+          1
+        ],
+        [
+          "A veces se basan solo en percepción",
+          2
+        ],
+        [
+          "Generalmente se decide por percepción",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Decisiones basadas en percepción, no en evidencia",
+        "text": "Bitácora de Observaciones que respalda cada decisión con hechos fechados, no impresiones."
+      }
+    },
+    {
+      "cat": "Salario y provisiones · Arts. 28–29",
+      "weight": 4,
+      "text": "¿Existe un registro actualizado y único del salario vigente de cada colaborador?",
+      "opts": [
+        [
+          "Sí, siempre actualizado",
+          0
+        ],
+        [
+          "Actualizado la mayoría de las veces",
+          1
+        ],
+        [
+          "Disperso en varios archivos",
+          2
+        ],
+        [
+          "No hay un registro único",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Salario sin registro único y actualizado",
+        "text": "Salario actual centralizado en la Ficha 360°, fuente única para todos los cálculos."
+      }
+    },
+    {
+      "cat": "Salario y provisiones",
+      "weight": 2,
+      "text": "¿Existe un historial de los cambios salariales de cada persona, con fecha y motivo?",
+      "opts": [
+        [
+          "Sí, completo",
+          0
+        ],
+        [
+          "Parcial",
+          1
+        ],
+        [
+          "Informal",
+          2
+        ],
+        [
+          "No existe",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Cambios salariales sin historial",
+        "text": "Historial de salario dentro de la pestaña Laboral de cada Ficha 360°."
+      }
+    },
+    {
+      "cat": "Salario y provisiones",
+      "weight": 2,
+      "text": "¿Conoce el costo laboral total de su empresa, no solo la suma de salarios?",
+      "opts": [
+        [
+          "Sí, con cargas sociales y provisiones",
+          0
+        ],
+        [
+          "Una estimación aproximada",
+          1
+        ],
+        [
+          "Solo la planilla base",
+          2
+        ],
+        [
+          "No tengo ese número",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Costo laboral real sin visibilidad",
+        "text": "Página de Costos con desglose por área, cargas sociales y provisiones laborales."
+      }
+    },
+    {
+      "cat": "Aguinaldo · Ley del Aguinaldo",
+      "weight": 2,
+      "text": "¿El aguinaldo acumulado a la fecha está provisionado en sus números, o lo descubre cuando toca pagarlo?",
+      "opts": [
+        [
+          "Está provisionado",
+          0
+        ],
+        [
+          "Parcialmente",
+          1
+        ],
+        [
+          "Lo estimamos por encima",
+          2
+        ],
+        [
+          "Lo descubrimos cuando toca pagarlo",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Aguinaldo sin provisionar",
+        "text": "Aguinaldo acumulado calculado en tiempo real dentro de la página de Costos."
+      }
+    },
+    {
+      "cat": "Liquidación · Arts. 28–29",
+      "weight": 4,
+      "text": "Si tuviera que prescindir de alguien mañana, ¿podría calcular en el momento cuánto le corresponde de cesantía y preaviso?",
+      "opts": [
+        [
+          "Sí, sin problema",
+          0
+        ],
+        [
+          "Tardaría un poco en armarlo",
+          1
+        ],
+        [
+          "Tardaría bastante",
+          2
+        ],
+        [
+          "No tengo idea de cómo calcularlo",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Sin visibilidad de costos de liquidación",
+        "text": "Calculadora de liquidación que ajusta cesantía, preaviso y vacaciones según la causal de salida."
+      }
+    },
+    {
+      "cat": "Gestión disciplinaria",
+      "weight": 4,
+      "text": "Cuando alguien comete una falta, ¿queda un registro escrito con fecha, o se resuelve solo de palabra?",
+      "opts": [
+        [
+          "Queda registro escrito siempre",
+          0
+        ],
+        [
+          "Casi siempre",
+          1
+        ],
+        [
+          "Rara vez",
+          2
+        ],
+        [
+          "Se resuelve solo de palabra",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Faltas sin registro escrito",
+        "text": "Bitácora de Observaciones con fecha y autoría, que respalda cualquier decisión posterior."
+      }
+    },
+    {
+      "cat": "Gestión disciplinaria",
+      "weight": 4,
+      "text": "Si tuviera que reconstruir la secuencia completa de una situación disciplinaria hoy, ¿podría hacerlo?",
+      "opts": [
+        [
+          "Sí, sin problema",
+          0
+        ],
+        [
+          "Con algo de trabajo",
+          1
+        ],
+        [
+          "Con mucha dificultad",
+          2
+        ],
+        [
+          "No podría reconstruirla",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Secuencias disciplinarias no reconstruibles",
+        "text": "Historial cronológico de observaciones por colaborador, siempre disponible."
+      }
+    },
+    {
+      "cat": "Gestión disciplinaria · Confidencialidad",
+      "weight": 4,
+      "text": "¿El acceso a la información disciplinaria está restringido a quienes realmente deben verla?",
+      "opts": [
+        [
+          "Sí, con roles definidos",
+          0
+        ],
+        [
+          "Parcialmente",
+          1
+        ],
+        [
+          "Cualquiera con acceso al sistema la ve",
+          2
+        ],
+        [
+          "No hay ninguna restricción",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Información disciplinaria sin restricción de acceso",
+        "text": "Permisos por rol (Gerente General, Líder de Área, Colaborador) que limitan qué puede ver cada quien."
+      }
+    },
+    {
+      "cat": "Protección legal especial · Art. 94, Ley 7476",
+      "weight": 4,
+      "text": "Antes de tomar una decisión sobre alguien (llamado de atención, cambio, salida), ¿revisa si tiene una protección legal activa (embarazo, lactancia, denuncia en curso)?",
+      "opts": [
+        [
+          "Sí, siempre",
+          0
+        ],
+        [
+          "Casi siempre",
+          1
+        ],
+        [
+          "A veces se nos escapa",
+          2
+        ],
+        [
+          "No tenemos ese proceso",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Riesgo de actuar sobre alguien con protección legal activa",
+        "text": "Alerta visible de fuero especial activo antes de cualquier decisión sobre esa persona."
+      }
+    },
+    {
+      "cat": "Protección legal especial · Confidencialidad",
+      "weight": 4,
+      "text": "¿El acceso al detalle de estas situaciones está restringido a quien realmente debe conocerlas?",
+      "opts": [
+        [
+          "Sí, muy restringido",
+          0
+        ],
+        [
+          "Parcialmente",
+          1
+        ],
+        [
+          "Lo conoce más gente de la necesaria",
+          2
+        ],
+        [
+          "No hay restricción",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Fueros especiales sin control de acceso",
+        "text": "Gestión de fueros especiales admin-only, con banner visible solo para el líder de área correspondiente."
+      }
+    },
+    {
+      "cat": "Terminación de la relación laboral",
+      "weight": 4,
+      "text": "Si tuviera que prescindir de alguien mañana, ¿identifica primero y con seguridad la causal de salida antes de calcular cualquier pago?",
+      "opts": [
+        [
+          "Sí, siempre",
+          0
+        ],
+        [
+          "Casi siempre",
+          1
+        ],
+        [
+          "A veces se define sobre la marcha",
+          2
+        ],
+        [
+          "No tenemos ese proceso claro",
+          3
+        ]
+      ],
+      "fix": {
+        "label": "Causal de salida sin definir antes de liquidar",
+        "text": "Calculadora de liquidación que parte de la causal (renuncia, despido con/sin responsabilidad) para ajustar el cálculo."
+      }
+    }
+  ],
+  "breakerIndices": [
+    6,
+    7,
+    8,
+    14,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "domains": [
+    {
+      "label": "Expediente",
+      "start": 0,
+      "end": 2
+    },
+    {
+      "label": "Contratos",
+      "start": 3,
+      "end": 5
+    },
+    {
+      "label": "Jornada",
+      "start": 6,
+      "end": 8
+    },
+    {
+      "label": "Vacaciones",
+      "start": 9,
+      "end": 11
+    },
+    {
+      "label": "Ausencias",
+      "start": 12,
+      "end": 13
+    },
+    {
+      "label": "Salario",
+      "start": 14,
+      "end": 18
+    },
+    {
+      "label": "Disciplina",
+      "start": 19,
+      "end": 21
+    },
+    {
+      "label": "Salida",
+      "start": 22,
+      "end": 24
+    }
+  ]
+}

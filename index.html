@@ -283,6 +283,41 @@
     color: var(--text-muted);
     margin: 14px 0 22px;
   }
+  .form-error {
+    font-size: 13.5px;
+    color: var(--critico);
+    background: rgba(180,67,47,0.12);
+    border: 1px solid rgba(180,67,47,0.35);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- Loading ---------- */
+  .loading-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 24px;
+  }
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--surface-2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text {
+    font-size: 15px;
+    color: var(--text-muted);
+    max-width: 40ch;
+    margin: 0;
+  }
 
   /* ---------- Results ---------- */
   .verdict-badge {
@@ -468,7 +503,7 @@
   <div class="screen" id="screen-form">
     <div class="form-intro">
       <h2>¿A quién le preparamos el análisis?</h2>
-      <p>Con esto le enviamos un análisis completo y personalizado de su situación — no solo el resultado rápido que va a ver a continuación.</p>
+      <p>Con esto le enviamos por correo un análisis completo y personalizado de su situación, generado especialmente para su empresa — además del resultado que va a ver a continuación en pantalla.</p>
     </div>
     <div class="field">
       <label for="fNombre">Nombre y apellido</label>
@@ -500,8 +535,17 @@
       </select>
     </div>
     <p class="privacy-note">Sus respuestas son confidenciales y no se comparten con terceros.</p>
+    <p class="form-error" id="formError" style="display:none;"></p>
     <button class="btn-primary" id="submitFormBtn">Ver mi resultado y recibir mi análisis</button>
     <button class="btn-ghost" id="backFromFormBtn">← Anterior</button>
+  </div>
+
+  <!-- SCREEN 2.5: LOADING -->
+  <div class="screen" id="screen-loading">
+    <div class="loading-wrap">
+      <div class="spinner"></div>
+      <p class="loading-text">Estamos generando su análisis personalizado con inteligencia artificial y enviándolo a su correo. Esto puede tardar entre 15 y 30 segundos — no cierre esta ventana.</p>
+    </div>
   </div>
 
   <!-- SCREEN 3: RESULTS -->
@@ -535,144 +579,16 @@
 </div>
 
 <script>
-  // weight: 1 = Media, 2 = Alta, 4 = Crítica
-  // opts value: 0 = Controlado, 1 = Parcial, 2 = Débil/informal, 3 = No controlado
-  const QUESTIONS = [
+  let QUESTIONS = [];
+  let BREAKER_INDICES = [];
+  let DOMAINS = [];
 
-    // ===== DOMINIO 1 — Expediente y relación laboral (idx 0-2) =====
-    { cat: "Expediente y relación laboral", weight: 4,
-      text: "¿Cada colaborador tiene hoy un expediente individual completo y actualizado?",
-      opts: [["Sí, todos y actualizados",0],["Sí, pero varios están desactualizados",1],["Existen expedientes sueltos, sin orden",2],["No llevamos expedientes individuales",3]],
-      fix: { label: "Expedientes incompletos o desactualizados", text: "Ficha 360° por colaborador, con historial completo y edición por pestañas — siempre al día." } },
-    { cat: "Expediente y relación laboral", weight: 2,
-      text: "¿Puede demostrar con un documento la fecha de ingreso exacta de cualquier colaborador?",
-      opts: [["Sí, para todos",0],["Para la mayoría",1],["Solo de memoria o de forma verbal",2],["No podría demostrarlo",3]],
-      fix: { label: "Fecha de ingreso sin respaldo documental", text: "Fecha de ingreso registrada en la Ficha 360° de cada colaborador." } },
-    { cat: "Expediente y relación laboral", weight: 4,
-      text: "Si tuviera que reconstruir hoy toda la historia laboral de una persona, ¿podría hacerlo con documentos, o dependería de la memoria de alguien?",
-      opts: [["Con documentos, sin depender de nadie",0],["Con documentos, pero incompletos",1],["Dependería en buena parte de la memoria de alguien",2],["Dependería completamente de una persona",3]],
-      fix: { label: "La historia laboral depende de una persona, no de un sistema", text: "Ficha 360° + bitácora de Observaciones: la historia queda en el sistema, no en la cabeza de nadie." } },
-
-    // ===== DOMINIO 2 — Contratos y condiciones pactadas (idx 3-5) =====
-    { cat: "Contratos y condiciones pactadas", weight: 4,
-      text: "¿Todos sus colaboradores tienen contrato de trabajo firmado?",
-      opts: [["Sí, el 100%",0],["La mayoría",1],["Menos de la mitad",2],["No usamos contratos escritos",3]],
-      fix: { label: "Colaboradores sin contrato firmado", text: "Alerta en el Panel de Atención cuando un expediente no tiene contrato asociado." } },
-    { cat: "Contratos y condiciones pactadas", weight: 4,
-      text: "¿Lo que dice el contrato de cada persona coincide con las condiciones reales bajo las que trabaja hoy (jornada, salario, puesto)?",
-      opts: [["Sí, siempre coinciden",0],["Casi siempre",1],["Hay varias discrepancias",2],["No lo hemos revisado nunca",3]],
-      fix: { label: "Contrato desactualizado frente a la realidad", text: "Salario, jornada y puesto se gestionan desde la misma Ficha 360°, para que el dato real y el contractual no se separen." } },
-    { cat: "Contratos y condiciones pactadas", weight: 2,
-      text: "¿Tiene contratos a plazo fijo próximos a vencer sin una alerta que se lo recuerde?",
-      opts: [["No tenemos ese riesgo o no aplica",0],["Lo controlamos manualmente",1],["A veces se nos pasa la fecha",2],["No llevamos ese control",3]],
-      fix: { label: "Vencimientos de contrato sin alerta automática", text: "Hoy este control se resuelve de forma manual — identificado como mejora futura del expediente digital." } },
-
-    // ===== DOMINIO 3 — Jornada y horas extraordinarias · Art. 58 (idx 6-8) =====
-    { cat: "Jornada y horas extra · Art. 58", weight: 4,
-      text: "¿Registra formalmente las horas extraordinarias que trabaja cada persona?",
-      opts: [["Sí, siempre",0],["La mayoría de las veces",1],["Solo quedan anotadas informalmente",2],["No llevamos registro",3]],
-      fix: { label: "Horas extra sin registro formal", text: "Registro de horas extraordinarias por colaborador, con historial completo." } },
-    { cat: "Jornada y horas extra · Art. 58", weight: 4,
-      text: "¿Sabe si alguna jornada combinada (ordinaria + extra) ha superado el límite legal de 12 horas en un mismo día?",
-      opts: [["No, lo tenemos controlado",0],["Creo que no, pero no estoy seguro",1],["Puede que haya pasado",2],["Sí, ha pasado y no lo detectamos a tiempo",3]],
-      fix: { label: "Jornadas por encima del límite legal", text: "Alerta automática al superar las 12 horas combinadas en un mismo día." } },
-    { cat: "Jornada y horas extra · Art. 58", weight: 4,
-      text: "Si tuviera que reconstruir la jornada efectiva de alguien ante una disputa, ¿podría hacerlo con registros?",
-      opts: [["Sí, sin problema",0],["Con algo de trabajo",1],["Con mucha dificultad",2],["No tenemos esos registros",3]],
-      fix: { label: "Jornada efectiva no reconstruible", text: "Registro de horas y ausencias centralizado en Mi Tiempo, listo para consulta en cualquier momento." } },
-
-    // ===== DOMINIO 4 — Vacaciones · Arts. 153-159, 161 (idx 9-11) =====
-    { cat: "Vacaciones · Arts. 153–159, 161", weight: 4,
-      text: "¿Sabe con exactitud cuántos días de vacaciones tiene acumulados cada colaborador, hoy mismo?",
-      opts: [["Sí, con exactitud",0],["Más o menos",1],["Solo si lo calculo a mano",2],["No lo sé",3]],
-      fix: { label: "Saldo de vacaciones sin control", text: "Cálculo automático del saldo por colaborador, según lo generado y disfrutado." } },
-    { cat: "Vacaciones · Arts. 158–159", weight: 2,
-      text: "¿Alguien en su equipo tiene 30 días o más de vacaciones sin disfrutar?",
-      opts: [["No, nadie",0],["No estoy seguro",1],["Creo que sí, alguna persona",2],["Sí, varias personas",3]],
-      fix: { label: "Acumulación de vacaciones sin resolver", text: "Alerta automática al llegar a 30 y 45 días acumulados, antes de que se vuelva un problema legal." } },
-    { cat: "Vacaciones · Arts. 153–159", weight: 2,
-      text: "¿La Gerencia sabe hoy, sin preguntarle a nadie, cuántos días de vacaciones acumulados tiene la empresa en total?",
-      opts: [["Sí, lo tengo a la mano",0],["Lo podría estimar",1],["Tendría que consultarlo con alguien",2],["No tengo idea",3]],
-      fix: { label: "Sin visibilidad consolidada de vacaciones", text: "Vista consolidada de saldos de vacaciones por colaborador y por área." } },
-
-    // ===== DOMINIO 5 — Ausencias e incapacidades (idx 12-13) =====
-    { cat: "Ausencias e incapacidades", weight: 2,
-      text: "¿Las incapacidades médicas quedan respaldadas con el documento correspondiente en el expediente?",
-      opts: [["Sí, siempre",0],["Casi siempre",1],["A veces se pierden",2],["No las archivamos formalmente",3]],
-      fix: { label: "Incapacidades sin respaldo documental", text: "Documentos de incapacidad archivados dentro de Mis Documentos en la Ficha 360°." } },
-    { cat: "Ausencias e incapacidades", weight: 4,
-      text: "¿Las decisiones sobre una persona con ausencias frecuentes se basan en hechos documentados, y no solo en percepción?",
-      opts: [["Siempre, con documentación",0],["Casi siempre",1],["A veces se basan solo en percepción",2],["Generalmente se decide por percepción",3]],
-      fix: { label: "Decisiones basadas en percepción, no en evidencia", text: "Bitácora de Observaciones que respalda cada decisión con hechos fechados, no impresiones." } },
-
-    // ===== DOMINIO 6 — Salario, compensación y provisiones · Arts. 28-29, Ley del Aguinaldo (idx 14-18) =====
-    { cat: "Salario y provisiones · Arts. 28–29", weight: 4,
-      text: "¿Existe un registro actualizado y único del salario vigente de cada colaborador?",
-      opts: [["Sí, siempre actualizado",0],["Actualizado la mayoría de las veces",1],["Disperso en varios archivos",2],["No hay un registro único",3]],
-      fix: { label: "Salario sin registro único y actualizado", text: "Salario actual centralizado en la Ficha 360°, fuente única para todos los cálculos." } },
-    { cat: "Salario y provisiones", weight: 2,
-      text: "¿Existe un historial de los cambios salariales de cada persona, con fecha y motivo?",
-      opts: [["Sí, completo",0],["Parcial",1],["Informal",2],["No existe",3]],
-      fix: { label: "Cambios salariales sin historial", text: "Historial de salario dentro de la pestaña Laboral de cada Ficha 360°." } },
-    { cat: "Salario y provisiones", weight: 2,
-      text: "¿Conoce el costo laboral total de su empresa, no solo la suma de salarios?",
-      opts: [["Sí, con cargas sociales y provisiones",0],["Una estimación aproximada",1],["Solo la planilla base",2],["No tengo ese número",3]],
-      fix: { label: "Costo laboral real sin visibilidad", text: "Página de Costos con desglose por área, cargas sociales y provisiones laborales." } },
-    { cat: "Aguinaldo · Ley del Aguinaldo", weight: 2,
-      text: "¿El aguinaldo acumulado a la fecha está provisionado en sus números, o lo descubre cuando toca pagarlo?",
-      opts: [["Está provisionado",0],["Parcialmente",1],["Lo estimamos por encima",2],["Lo descubrimos cuando toca pagarlo",3]],
-      fix: { label: "Aguinaldo sin provisionar", text: "Aguinaldo acumulado calculado en tiempo real dentro de la página de Costos." } },
-    { cat: "Liquidación · Arts. 28–29", weight: 4,
-      text: "Si tuviera que prescindir de alguien mañana, ¿podría calcular en el momento cuánto le corresponde de cesantía y preaviso?",
-      opts: [["Sí, sin problema",0],["Tardaría un poco en armarlo",1],["Tardaría bastante",2],["No tengo idea de cómo calcularlo",3]],
-      fix: { label: "Sin visibilidad de costos de liquidación", text: "Calculadora de liquidación que ajusta cesantía, preaviso y vacaciones según la causal de salida." } },
-
-    // ===== DOMINIO 7 — Gestión disciplinaria y observaciones (idx 19-21) =====
-    { cat: "Gestión disciplinaria", weight: 4,
-      text: "Cuando alguien comete una falta, ¿queda un registro escrito con fecha, o se resuelve solo de palabra?",
-      opts: [["Queda registro escrito siempre",0],["Casi siempre",1],["Rara vez",2],["Se resuelve solo de palabra",3]],
-      fix: { label: "Faltas sin registro escrito", text: "Bitácora de Observaciones con fecha y autoría, que respalda cualquier decisión posterior." } },
-    { cat: "Gestión disciplinaria", weight: 4,
-      text: "Si tuviera que reconstruir la secuencia completa de una situación disciplinaria hoy, ¿podría hacerlo?",
-      opts: [["Sí, sin problema",0],["Con algo de trabajo",1],["Con mucha dificultad",2],["No podría reconstruirla",3]],
-      fix: { label: "Secuencias disciplinarias no reconstruibles", text: "Historial cronológico de observaciones por colaborador, siempre disponible." } },
-    { cat: "Gestión disciplinaria · Confidencialidad", weight: 4,
-      text: "¿El acceso a la información disciplinaria está restringido a quienes realmente deben verla?",
-      opts: [["Sí, con roles definidos",0],["Parcialmente",1],["Cualquiera con acceso al sistema la ve",2],["No hay ninguna restricción",3]],
-      fix: { label: "Información disciplinaria sin restricción de acceso", text: "Permisos por rol (Gerente General, Líder de Área, Colaborador) que limitan qué puede ver cada quien." } },
-
-    // ===== DOMINIO 8 — Terminación, fueros y protecciones especiales · Art. 94, Ley 7476, Arts. 28-29 (idx 22-24) =====
-    { cat: "Protección legal especial · Art. 94, Ley 7476", weight: 4,
-      text: "Antes de tomar una decisión sobre alguien (llamado de atención, cambio, salida), ¿revisa si tiene una protección legal activa (embarazo, lactancia, denuncia en curso)?",
-      opts: [["Sí, siempre",0],["Casi siempre",1],["A veces se nos escapa",2],["No tenemos ese proceso",3]],
-      fix: { label: "Riesgo de actuar sobre alguien con protección legal activa", text: "Alerta visible de fuero especial activo antes de cualquier decisión sobre esa persona." } },
-    { cat: "Protección legal especial · Confidencialidad", weight: 4,
-      text: "¿El acceso al detalle de estas situaciones está restringido a quien realmente debe conocerlas?",
-      opts: [["Sí, muy restringido",0],["Parcialmente",1],["Lo conoce más gente de la necesaria",2],["No hay restricción",3]],
-      fix: { label: "Fueros especiales sin control de acceso", text: "Gestión de fueros especiales admin-only, con banner visible solo para el líder de área correspondiente." } },
-    { cat: "Terminación de la relación laboral", weight: 4,
-      text: "Si tuviera que prescindir de alguien mañana, ¿identifica primero y con seguridad la causal de salida antes de calcular cualquier pago?",
-      opts: [["Sí, siempre",0],["Casi siempre",1],["A veces se define sobre la marcha",2],["No tenemos ese proceso claro",3]],
-      fix: { label: "Causal de salida sin definir antes de liquidar", text: "Calculadora de liquidación que parte de la causal (renuncia, despido con/sin responsabilidad) para ajustar el cálculo." } }
-  ];
-
-  // Preguntas cuya respuesta "No controlado" (valor 3) puede, por sí sola,
-  // elevar el nivel de exposición general — jornada, salario/liquidación,
-  // disciplinaria/confidencialidad y fuero/terminación.
-  const BREAKER_INDICES = [6, 7, 8, 14, 18, 19, 20, 21, 22, 23, 24];
-
-  // Agrupación de las 25 preguntas en los 8 dominios del instrumento,
-  // usada únicamente para construir el gráfico de telaraña del resultado.
-  const DOMAINS = [
-    { label: "Expediente", start: 0, end: 2 },
-    { label: "Contratos", start: 3, end: 5 },
-    { label: "Jornada", start: 6, end: 8 },
-    { label: "Vacaciones", start: 9, end: 11 },
-    { label: "Ausencias", start: 12, end: 13 },
-    { label: "Salario", start: 14, end: 18 },
-    { label: "Disciplina", start: 19, end: 21 },
-    { label: "Salida", start: 22, end: 24 }
-  ];
+  const BAND_STYLES = {
+    protegido: { badgeBg: 'rgba(92,122,90,0.18)', badgeColor: 'var(--sage)' },
+    transicion: { badgeBg: 'rgba(215,172,92,0.18)', badgeColor: 'var(--amber)' },
+    expuesto: { badgeBg: 'rgba(184,134,46,0.2)', badgeColor: 'var(--rust)' },
+    critico: { badgeBg: 'rgba(180,67,47,0.22)', badgeColor: 'var(--critico)' }
+  };
 
   function renderRadar(scores) {
     const size = 400;
@@ -728,7 +644,7 @@
   }
 
   let current = 0;
-  const answers = new Array(QUESTIONS.length).fill(null);
+  let answers = [];
 
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -766,12 +682,6 @@
     });
   }
 
-  document.getElementById('startBtn').addEventListener('click', function() {
-    current = 0;
-    showScreen('screen-questions');
-    renderQuestion();
-  });
-
   document.getElementById('backBtn').addEventListener('click', function() {
     if (current > 0) { current--; renderQuestion(); }
   });
@@ -782,135 +692,99 @@
     renderQuestion();
   });
 
-  document.getElementById('submitFormBtn').addEventListener('click', function() {
-    // NOTA PARA WARREN: este formulario hoy solo guarda los datos en
-    // memoria del navegador (variable contactInfo) para armar el link
-    // de WhatsApp. No envía nada a ningún backend ni CRM todavía.
-    // Para capturar estos leads de verdad, hay que conectar este botón
-    // a un servicio (webhook, Zapier, Make, o un endpoint propio) que
-    // reciba estos datos antes de mostrar el resultado.
+  function setFormError(message) {
+    const el = document.getElementById('formError');
+    if (message) {
+      el.textContent = message;
+      el.style.display = 'block';
+    } else {
+      el.style.display = 'none';
+    }
+  }
+
+  document.getElementById('submitFormBtn').addEventListener('click', async function() {
     const contactInfo = {
-      nombre: document.getElementById('fNombre').value,
-      empresa: document.getElementById('fEmpresa').value,
-      puesto: document.getElementById('fPuesto').value,
-      correo: document.getElementById('fCorreo').value,
-      whatsapp: document.getElementById('fWhatsapp').value,
+      nombre: document.getElementById('fNombre').value.trim(),
+      empresa: document.getElementById('fEmpresa').value.trim(),
+      puesto: document.getElementById('fPuesto').value.trim(),
+      correo: document.getElementById('fCorreo').value.trim(),
+      whatsapp: document.getElementById('fWhatsapp').value.trim(),
       colaboradores: document.getElementById('fColaboradores').value,
     };
-    window.__contactInfo = contactInfo;
-    mostrarResultado();
-  });
 
-  function mostrarResultado() {
-    let totalRisk = 0;
-    let maxRisk = 0;
-    let breakerHits = 0;
-    const scored = [];
-
-    QUESTIONS.forEach(function(q, i) {
-      const v = answers[i] || 0;
-      totalRisk += v * q.weight;
-      maxRisk += 3 * q.weight;
-      if (BREAKER_INDICES.indexOf(i) !== -1 && v === 3) breakerHits++;
-      scored.push({ i: i, v: v, weight: q.weight, score: v * q.weight });
-    });
-
-    const indice = Math.max(0, Math.round(100 - (totalRisk / maxRisk * 100)));
-
-    let band;
-    if (indice >= 80) band = 'protegido';
-    else if (indice >= 60) band = 'transicion';
-    else if (indice >= 35) band = 'expuesto';
-    else band = 'critico';
-
-    // Reglas de ruptura: un hallazgo crítico en fuero, terminación, jornada,
-    // salario o confidencialidad no debe quedar diluido por un buen promedio.
-    if (breakerHits >= 2) {
-      band = 'critico';
-    } else if (breakerHits >= 1 && (band === 'protegido' || band === 'transicion')) {
-      band = 'expuesto';
+    if (!contactInfo.correo) {
+      setFormError('Por favor ingrese su correo para poder enviarle el análisis.');
+      return;
     }
 
-    const BANDS = {
-      protegido: {
-        badgeBg: 'rgba(92,122,90,0.18)', badgeColor: 'var(--sage)', badgeText: 'Protegido',
-        title: 'Su relación laboral está genuinamente bajo control.',
-        text: 'Los controles fundamentales del Código de Trabajo están documentados y son demostrables. Todavía vale la pena cerrar los focos puntuales de abajo, pero no está operando a ciegas.'
-      },
-      transicion: {
-        badgeBg: 'rgba(215,172,92,0.18)', badgeColor: 'var(--amber)', badgeText: 'En transición',
-        title: 'Hay más de un punto ciego real en su gestión.',
-        text: 'Ninguno de estos hallazgos es, por sí solo, una crisis — pero juntos representan una exposición que un inspector de trabajo, o un colaborador con asesoría legal, puede encontrar sin mucho esfuerzo.'
-      },
-      expuesto: {
-        badgeBg: 'rgba(184,134,46,0.2)', badgeColor: 'var(--rust)', badgeText: 'Expuesto',
-        title: 'Su empresa está corriendo un riesgo real, no hipotético.',
-        text: 'Varias obligaciones básicas del Código de Trabajo no tienen un control demostrable hoy. Esto no se resuelve con más cuidado — necesita un proceso y un sistema que no dependa de la memoria de una sola persona.'
-      },
-      critico: {
-        badgeBg: 'rgba(180,67,47,0.22)', badgeColor: 'var(--critico)', badgeText: 'Crítico',
-        title: 'Esto ya no es una alerta preventiva — es una situación activa.',
-        text: 'La combinación de hallazgos de abajo es exactamente el patrón que termina en una demanda laboral costosa. Cada uno tiene una solución concreta, y se puede empezar a cerrar la brecha esta misma semana.'
-      }
-    };
+    setFormError(null);
+    window.__contactInfo = contactInfo;
+    showScreen('screen-loading');
 
-    const b = BANDS[band];
+    try {
+      const response = await fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers: answers, contactInfo: contactInfo })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Hubo un problema generando su análisis.');
+      }
+
+      renderResultado(data);
+    } catch (err) {
+      showScreen('screen-form');
+      setFormError(err.message || 'Hubo un problema de conexión. Por favor intente de nuevo.');
+    }
+  });
+
+  function renderResultado(result) {
+    const style = BAND_STYLES[result.band] || BAND_STYLES.expuesto;
+
     const badge = document.getElementById('verdictBadge');
-    badge.textContent = b.badgeText;
-    badge.style.background = b.badgeBg;
-    badge.style.color = b.badgeColor;
+    badge.textContent = result.badgeText;
+    badge.style.background = style.badgeBg;
+    badge.style.color = style.badgeColor;
 
-    document.getElementById('verdictTitle').textContent = b.title;
-    document.getElementById('verdictScore').textContent = 'Índice de Control: ' + indice + ' / 100';
-    document.getElementById('verdictText').textContent = b.text;
+    document.getElementById('verdictTitle').textContent = result.title;
+    document.getElementById('verdictScore').textContent = 'Índice de Control: ' + result.indice + ' / 100';
+    document.getElementById('verdictText').textContent = result.text;
 
-    const domainScores = DOMAINS.map(function(d) {
-      let risk = 0, max = 0;
-      for (let i = d.start; i <= d.end; i++) {
-        risk += (answers[i] || 0) * QUESTIONS[i].weight;
-        max += 3 * QUESTIONS[i].weight;
-      }
-      return { label: d.label, value: Math.max(0, Math.round(100 - (risk / max * 100))) };
-    });
-    renderRadar(domainScores);
+    renderRadar(result.domainScores);
 
     const breakerNote = document.getElementById('breakerNote');
     breakerNote.innerHTML = '';
-    if (breakerHits >= 1) {
+    if (result.breakerHits >= 1) {
       const p = document.createElement('p');
       p.className = 'verdict-breaker';
-      p.textContent = breakerHits === 1
+      p.textContent = result.breakerHits === 1
         ? 'Se detectó 1 hallazgo crítico (fuero, terminación, jornada, salario o confidencialidad) que eleva su nivel de exposición, más allá del puntaje general.'
-        : 'Se detectaron ' + breakerHits + ' hallazgos críticos (fuero, terminación, jornada, salario o confidencialidad) que elevan su nivel de exposición, más allá del puntaje general.';
+        : 'Se detectaron ' + result.breakerHits + ' hallazgos críticos (fuero, terminación, jornada, salario o confidencialidad) que elevan su nivel de exposición, más allá del puntaje general.';
       breakerNote.appendChild(p);
     }
 
-    // Focos de atención: los de mayor puntaje de riesgo (valor × criticidad),
-    // entre los que muestran al menos un nivel "Parcial" de gestión.
-    const relevant = scored.filter(function(s) { return s.v >= 1; });
-    relevant.sort(function(a, c) { return c.score - a.score; });
-    const top = relevant.slice(0, 8);
-
     const list = document.getElementById('exposedList');
     list.innerHTML = '';
-    if (top.length === 0) {
+    if (!result.focos || result.focos.length === 0) {
       const li = document.createElement('li');
       li.className = 'exposed-item';
       li.innerHTML = '<p class="exposed-item-title">Sin puntos críticos detectados</p><p class="exposed-item-fix">Todas sus respuestas indican un control razonable sobre estas áreas.</p>';
       list.appendChild(li);
     } else {
-      top.forEach(function(s) {
-        const q = QUESTIONS[s.i];
+      result.focos.forEach(function(f) {
         const li = document.createElement('li');
         li.className = 'exposed-item';
-        li.innerHTML = '<p class="exposed-item-cat">' + q.cat + '</p><p class="exposed-item-title">' + q.fix.label + '</p><p class="exposed-item-fix">' + q.fix.text + '</p>';
+        li.innerHTML = '<p class="exposed-item-cat">' + f.cat + '</p><p class="exposed-item-title">' + f.label + '</p><p class="exposed-item-fix">' + f.fix + '</p>';
         list.appendChild(li);
       });
     }
 
     const wa = document.getElementById('whatsappBtn');
     const nombre = (window.__contactInfo && window.__contactInfo.nombre) || '';
-    const msg = encodeURIComponent('Hola, acabo de completar la Evaluación de Control y Exposición Laboral' + (nombre ? (' (' + nombre + ')') : '') + ' y quiero conversar sobre mi resultado: ' + b.badgeText + ' (Índice de Control: ' + indice + '/100).');
+    const msg = encodeURIComponent('Hola, acabo de completar la Evaluación de Control y Exposición Laboral' + (nombre ? (' (' + nombre + ')') : '') + ' y quiero conversar sobre mi resultado: ' + result.badgeText + ' (Índice de Control: ' + result.indice + '/100).');
     // NOTA: reemplazar 50600000000 por el número real de WhatsApp Business
     wa.href = 'https://wa.me/50600000000?text=' + msg;
 
@@ -920,6 +794,34 @@
   document.getElementById('restartBtn').addEventListener('click', function() {
     window.location.reload();
   });
+
+  async function init() {
+    const startBtn = document.getElementById('startBtn');
+    startBtn.disabled = true;
+    startBtn.textContent = 'Cargando...';
+
+    try {
+      const response = await fetch('/questions-data.json');
+      if (!response.ok) throw new Error('No se pudo cargar el cuestionario.');
+      const data = await response.json();
+      QUESTIONS = data.questions;
+      BREAKER_INDICES = data.breakerIndices;
+      DOMAINS = data.domains;
+      answers = new Array(QUESTIONS.length).fill(null);
+
+      startBtn.disabled = false;
+      startBtn.textContent = 'Comenzar mi evaluación';
+      startBtn.addEventListener('click', function() {
+        current = 0;
+        showScreen('screen-questions');
+        renderQuestion();
+      });
+    } catch (err) {
+      startBtn.textContent = 'Error al cargar — recargue la página';
+    }
+  }
+
+  init();
 </script>
 
 </body>
