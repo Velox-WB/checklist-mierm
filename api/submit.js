@@ -155,39 +155,31 @@ async function callClaude(prompt) {
   return textBlock ? textBlock.text : 'No se pudo generar el análisis detallado.';
 }
 
-function buildRadarChartUrl(domainScores) {
-  const labels = domainScores.map(function (d) { return d.label; });
-  const values = domainScores.map(function (d) { return d.value; });
+function domainBarsHtml(domainScores) {
+  const rows = domainScores.map(function (d) {
+    const filled = Math.max(0, Math.min(100, d.value));
+    const empty = 100 - filled;
+    const filledRadius = empty > 0 ? '4px 0 0 4px' : '4px';
+    const emptyRadius = filled > 0 ? '0 4px 4px 0' : '4px';
 
-  const config = {
-    type: 'radar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Índice de Control',
-        data: values,
-        backgroundColor: 'rgba(184,134,46,0.35)',
-        borderColor: '#B8862E',
-        borderWidth: 2,
-        pointBackgroundColor: '#D7AC5C',
-        pointBorderColor: '#D7AC5C',
-        pointRadius: 4
-      }]
-    },
-    options: {
-      legend: { display: false },
-      scale: {
-        angleLines: { color: 'rgba(147,160,172,0.35)' },
-        gridLines: { color: 'rgba(147,160,172,0.35)' },
-        pointLabels: { fontColor: '#FAF7F0', fontSize: 13 },
-        ticks: { min: 0, max: 100, stepSize: 25, showLabelBackdrop: false, fontColor: '#93A0AC', fontSize: 10 }
-      }
+    let barCells = '';
+    if (filled > 0) {
+      barCells += '<td width="' + filled + '%" bgcolor="#B8862E" style="background:#B8862E;font-size:1px;line-height:8px;border-radius:' + filledRadius + ';">&nbsp;</td>';
     }
-  };
+    if (empty > 0) {
+      barCells += '<td width="' + empty + '%" bgcolor="#2A3F55" style="background:#2A3F55;font-size:1px;line-height:8px;border-radius:' + emptyRadius + ';">&nbsp;</td>';
+    }
 
-  const encodedConfig = encodeURIComponent(JSON.stringify(config));
-  const encodedBg = encodeURIComponent('#182B3E');
-  return 'https://quickchart.io/chart?width=500&height=500&backgroundColor=' + encodedBg + '&c=' + encodedConfig;
+    return '<tr><td style="padding:0 0 14px;">' +
+      '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' +
+      '<td style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#FAF7F0;padding-bottom:5px;">' + d.label + '</td>' +
+      '<td align="right" style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#D7AC5C;font-weight:bold;padding-bottom:5px;">' + d.value + '/100</td>' +
+      '</tr></table>' +
+      '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;border-spacing:0;"><tr>' + barCells + '</tr></table>' +
+      '</td></tr>';
+  }).join('');
+
+  return '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 8px;">' + rows + '</table>';
 }
 
 function formatAnalysisHtml(analysisText) {
@@ -212,7 +204,6 @@ function emailShell(innerHtml) {
 }
 
 function buildProspectEmailHtml(contactInfo, result, analysisText) {
-  const radarUrl = buildRadarChartUrl(result.domainScores);
   const focosHtml = result.focos.slice(0, 5).map(function (f) {
     return '<li style="margin-bottom:10px;"><strong>' + f.label + '</strong><br><span style="color:#93A0AC;font-size:14px;">' + f.fix + '</span></li>';
   }).join('');
@@ -223,8 +214,8 @@ function buildProspectEmailHtml(contactInfo, result, analysisText) {
     '<p style="font-size:14px;color:#93A0AC;margin:0 0 20px;">Índice de Control: ' + result.indice + ' / 100</p>' +
     '<p style="font-size:15px;color:#93A0AC;line-height:1.6;margin:0 0 28px;">' + result.text + '</p>' +
     '<p style="font-size:13px;color:#D7AC5C;font-weight:600;margin:0 0 14px;">SU CONTROL POR DOMINIO</p>' +
-    '<img src="' + radarUrl + '" alt="Control por dominio" width="400" style="display:block;width:100%;max-width:400px;margin:0 auto 8px;border-radius:8px;border:1px solid #2A3F55;">' +
-    '<p style="font-size:12px;color:#93A0AC;text-align:center;margin:0 0 28px;">Cada eje va de 0 (sin control) a 100 (control total). Entre más cerca del centro, mayor la exposición en ese dominio.</p>' +
+    domainBarsHtml(result.domainScores) +
+    '<p style="font-size:12px;color:#93A0AC;margin:0 0 28px;">Cada barra va de 0 (sin control) a 100 (control total).</p>' +
     '<p style="font-size:13px;color:#D7AC5C;font-weight:600;margin:0 0 14px;">SU ANÁLISIS DETALLADO</p>' +
     formatAnalysisHtml(analysisText) +
     '<p style="font-size:13px;color:#D7AC5C;font-weight:600;margin:24px 0 14px;">SUS FOCOS PRIORITARIOS</p>' +
@@ -235,7 +226,6 @@ function buildProspectEmailHtml(contactInfo, result, analysisText) {
 }
 
 function buildWarrenEmailHtml(contactInfo, result, analysisText) {
-  const radarUrl = buildRadarChartUrl(result.domainScores);
   const inner =
     '<p style="font-size:13px;color:#D7AC5C;font-weight:600;margin:0 0 14px;">NUEVO LEAD — LISTO PARA LA LLAMADA</p>' +
     '<table style="width:100%;border-collapse:collapse;margin-bottom:24px;font-size:14px;">' +
@@ -250,8 +240,8 @@ function buildWarrenEmailHtml(contactInfo, result, analysisText) {
     '<p style="font-size:14px;color:#93A0AC;margin:0 0 20px;">Índice de Control: ' + result.indice + ' / 100 · ' + result.badgeText +
     (result.breakerHits >= 1 ? ' · ' + result.breakerHits + ' hallazgo(s) crítico(s)' : '') + '</p>' +
     '<p style="font-size:13px;color:#D7AC5C;font-weight:600;margin:0 0 14px;">CONTROL POR DOMINIO</p>' +
-    '<img src="' + radarUrl + '" alt="Control por dominio" width="400" style="display:block;width:100%;max-width:400px;margin:0 auto 24px;border-radius:8px;border:1px solid #2A3F55;">' +
-    '<p style="font-size:13px;color:#D7AC5C;font-weight:600;margin:0 0 14px;">ANÁLISIS COMPLETO</p>' +
+    domainBarsHtml(result.domainScores) +
+    '<p style="font-size:13px;color:#D7AC5C;font-weight:600;margin:24px 0 14px;">ANÁLISIS COMPLETO</p>' +
     formatAnalysisHtml(analysisText);
 
   return emailShell(inner);
