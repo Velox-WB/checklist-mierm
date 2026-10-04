@@ -259,7 +259,7 @@ async function sendEmail(to, subject, html, attachments) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      from: process.env.RESEND_FROM_EMAIL,
+      from: process.env.RESEND_FROM_EMAIL || 'Mi ERM <reporte@mierm.work>',
       to: [to],
       subject: subject,
       html: html,
