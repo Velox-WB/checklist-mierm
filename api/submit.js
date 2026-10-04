@@ -9,6 +9,7 @@
 // Devuelve: el resultado (índice, banda, dominios, focos) para pintar la
 //           pantalla de resultado en el navegador.
 
+const radarPng = require('./radar');
 const QUESTIONS_DATA = require('../questions-data.json');
 
 const BANDS = {
@@ -176,6 +177,16 @@ function emailShell(innerHtml) {
     '</div></div>';
 }
 
+function buildRadarEmailHtml(result) {
+  const legend = result.domainScores.map(function (domain, index) {
+    return '<tr><td style="padding:5px 0;color:#506070;">' + String(index + 1).padStart(2, '0') + ' / ' + escapeAnswerHtml(domain.label) + '</td><td style="padding:5px 0;text-align:right;font-weight:600;">' + domain.value + '/100</td></tr>';
+  }).join('');
+  return '<h2 style="font-family:Georgia,serif;font-size:22px;margin:28px 0 12px;">Su control por dominio</h2>' +
+    '<img src="cid:mierm-radar" width="480" alt="Gráfico de telaraña del control por dominio. Valores detallados en la tabla siguiente." style="display:block;width:100%;max-width:480px;height:auto;margin:auto;">' +
+    '<table role="presentation" style="width:100%;font-size:12px;border-collapse:collapse;">' + legend + '</table>' +
+    '<p style="font-size:12px;color:#506070;margin:12px 0 24px;">Cada eje va de 0 a 100. Cuanto más cerca del centro, menor es el control declarado en ese dominio.</p>';
+}
+
 function buildProspectEmailHtml(contactInfo, result, analysisText) {
   const focosHtml = result.focos.slice(0, 5).map(function (f) {
     return '<li style="margin-bottom:10px;"><strong>' + f.label + '</strong><br><span style="color:#506070;font-size:14px;">' + f.fix + '</span></li>';
@@ -186,6 +197,7 @@ function buildProspectEmailHtml(contactInfo, result, analysisText) {
     '<h1 style="font-family:Georgia,serif;font-size:24px;margin:0 0 8px;">' + result.title + '</h1>' +
     '<p style="font-size:14px;color:#506070;margin:0 0 20px;">Índice de Control: ' + result.indice + ' / 100</p>' +
     '<p style="font-size:15px;color:#506070;line-height:1.6;margin:0 0 28px;">' + result.text + '</p>' +
+    buildRadarEmailHtml(result) +
     '<p style="font-size:13px;color:#886215;font-weight:600;margin:0 0 14px;">SU ANÁLISIS DETALLADO</p>' +
     formatAnalysisHtml(analysisText) +
     '<p style="font-size:13px;color:#886215;font-weight:600;margin:24px 0 14px;">SUS FOCOS PRIORITARIOS</p>' +
@@ -232,13 +244,14 @@ function buildWarrenEmailHtml(contactInfo, result, analysisText, answers) {
     '<h1 style="font-family:Georgia,serif;font-size:22px;margin:0 0 8px;">' + result.title + '</h1>' +
     '<p style="font-size:14px;color:#506070;margin:0 0 20px;">Índice de Control: ' + result.indice + ' / 100 · ' + result.badgeText +
     (result.breakerHits >= 1 ? ' · ' + result.breakerHits + ' hallazgo(s) crítico(s)' : '') + '</p>' +
+    buildRadarEmailHtml(result) +
     '<p style="font-size:13px;color:#886215;font-weight:600;margin:0 0 14px;">ANÁLISIS COMPLETO</p>' +
     formatAnalysisHtml(analysisText) + buildAnswersEmailHtml(answers);
 
   return emailShell(inner);
 }
 
-async function sendEmail(to, subject, html) {
+async function sendEmail(to, subject, html, attachments) {
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -249,7 +262,8 @@ async function sendEmail(to, subject, html) {
       from: process.env.RESEND_FROM_EMAIL,
       to: [to],
       subject: subject,
-      html: html
+      html: html,
+      attachments: attachments
     })
   });
 
@@ -283,6 +297,7 @@ module.exports = async function handler(req, res) {
     const prompt = buildAnalysisPrompt(contactInfo, result);
     const analysisText = await callClaude(prompt);
 
+    const attachments = [{ filename: "control-por-dominio.png", content: radarPng(result.domainScores).toString("base64"), content_id: "mierm-radar" }];
     const prospectHtml = buildProspectEmailHtml(contactInfo, result, analysisText);
     const warrenHtml = buildWarrenEmailHtml(contactInfo, result, analysisText, answers);
 
@@ -290,12 +305,12 @@ module.exports = async function handler(req, res) {
       sendEmail(
         contactInfo.correo,
         'Su resultado — Evaluación de Control y Exposición Laboral (' + result.badgeText + ')',
-        prospectHtml
+        prospectHtml, attachments
       ),
       sendEmail(
         process.env.WARREN_EMAIL,
         'Nuevo lead: ' + (contactInfo.empresa || contactInfo.nombre || 'sin nombre') + ' — ' + result.badgeText,
-        warrenHtml
+        warrenHtml, attachments
       )
     ]);
 
