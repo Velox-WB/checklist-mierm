@@ -195,7 +195,30 @@ function buildProspectEmailHtml(contactInfo, result, analysisText) {
   return emailShell(inner);
 }
 
-function buildWarrenEmailHtml(contactInfo, result, analysisText) {
+function escapeAnswerHtml(value) {
+  return String(value).replace(/[&<>"']/g, function (char) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char];
+  });
+}
+
+function buildAnswersEmailHtml(answers) {
+  const rows = QUESTIONS_DATA.questions.map(function (question, index) {
+    const raw = answers[index];
+    const value = (typeof raw === 'number' || (typeof raw === 'string' && raw.trim() !== '')) ? Number(raw) : NaN;
+    const option = question.opts.find(function (item) { return item[1] === value; });
+    const answerText = option ? option[0] : 'Respuesta no válida o no disponible';
+    return '<tr><td style="padding:18px 0;border-top:1px solid #D2CEC4;">' +
+      '<p style="margin:0 0 8px;font-size:11px;color:#886215;">' + (index + 1) + ' / ' + escapeAnswerHtml(question.cat) + '</p>' +
+      '<p style="margin:0 0 8px;font-size:14px;font-weight:600;line-height:1.6;">' + escapeAnswerHtml(question.text) + '</p>' +
+      '<p style="margin:0;font-size:14px;line-height:1.6;color:#506070;"><strong>Respuesta:</strong> ' + escapeAnswerHtml(answerText) + '</p>' +
+      '</td></tr>';
+  }).join('');
+  return '<h2 style="font-family:Georgia,serif;font-size:22px;margin:32px 0 12px;">Detalle de respuestas</h2>' +
+    '<p style="font-size:12px;color:#506070;margin:0 0 18px;">Las 25 preguntas y las opciones seleccionadas, en el orden del checklist. Este detalle permite contrastar el análisis con las respuestas recibidas.</p>' +
+    '<table role="presentation" style="width:100%;border-collapse:collapse;">' + rows + '</table>';
+}
+
+function buildWarrenEmailHtml(contactInfo, result, analysisText, answers) {
   const inner =
     '<p style="font-size:13px;color:#886215;font-weight:600;margin:0 0 14px;">NUEVO LEAD — LISTO PARA LA LLAMADA</p>' +
     '<table style="width:100%;border-collapse:collapse;margin-bottom:24px;font-size:14px;">' +
@@ -210,7 +233,7 @@ function buildWarrenEmailHtml(contactInfo, result, analysisText) {
     '<p style="font-size:14px;color:#506070;margin:0 0 20px;">Índice de Control: ' + result.indice + ' / 100 · ' + result.badgeText +
     (result.breakerHits >= 1 ? ' · ' + result.breakerHits + ' hallazgo(s) crítico(s)' : '') + '</p>' +
     '<p style="font-size:13px;color:#886215;font-weight:600;margin:0 0 14px;">ANÁLISIS COMPLETO</p>' +
-    formatAnalysisHtml(analysisText);
+    formatAnalysisHtml(analysisText) + buildAnswersEmailHtml(answers);
 
   return emailShell(inner);
 }
@@ -261,7 +284,7 @@ module.exports = async function handler(req, res) {
     const analysisText = await callClaude(prompt);
 
     const prospectHtml = buildProspectEmailHtml(contactInfo, result, analysisText);
-    const warrenHtml = buildWarrenEmailHtml(contactInfo, result, analysisText);
+    const warrenHtml = buildWarrenEmailHtml(contactInfo, result, analysisText, answers);
 
     await Promise.all([
       sendEmail(
