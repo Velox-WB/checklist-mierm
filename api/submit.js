@@ -155,33 +155,6 @@ async function callClaude(prompt) {
   return textBlock ? textBlock.text : 'No se pudo generar el análisis detallado.';
 }
 
-function domainBarsHtml(domainScores) {
-  const rows = domainScores.map(function (d) {
-    const filled = Math.max(0, Math.min(100, d.value));
-    const empty = 100 - filled;
-    const filledRadius = empty > 0 ? '4px 0 0 4px' : '4px';
-    const emptyRadius = filled > 0 ? '0 4px 4px 0' : '4px';
-
-    let barCells = '';
-    if (filled > 0) {
-      barCells += '<td width="' + filled + '%" bgcolor="#B8862E" style="background:#B8862E;font-size:1px;line-height:8px;border-radius:' + filledRadius + ';">&nbsp;</td>';
-    }
-    if (empty > 0) {
-      barCells += '<td width="' + empty + '%" bgcolor="#2A3F55" style="background:#2A3F55;font-size:1px;line-height:8px;border-radius:' + emptyRadius + ';">&nbsp;</td>';
-    }
-
-    return '<tr><td style="padding:0 0 14px;">' +
-      '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' +
-      '<td style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#FAF7F0;padding-bottom:5px;">' + d.label + '</td>' +
-      '<td align="right" style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#D7AC5C;font-weight:bold;padding-bottom:5px;">' + d.value + '/100</td>' +
-      '</tr></table>' +
-      '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;border-spacing:0;"><tr>' + barCells + '</tr></table>' +
-      '</td></tr>';
-  }).join('');
-
-  return '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 8px;">' + rows + '</table>';
-}
-
 function formatAnalysisHtml(analysisText) {
   // Conversión mínima de markdown simple (negritas y saltos de línea) a HTML,
   // suficiente para un correo — no requiere ninguna librería externa.
@@ -195,53 +168,48 @@ function formatAnalysisHtml(analysisText) {
 }
 
 function emailShell(innerHtml) {
-  return '<div style="background:#12202F;padding:32px 16px;font-family:-apple-system,Segoe UI,Public Sans,sans-serif;">' +
-    '<div style="max-width:560px;margin:0 auto;background:#182B3E;border:1px solid #2A3F55;border-radius:10px;padding:32px;color:#FAF7F0;">' +
-    '<div style="font-size:18px;margin-bottom:24px;"><span style="font-family:Georgia,serif;font-style:italic;color:#D7AC5C;">Mi</span><span style="font-weight:800;letter-spacing:0.02em;margin-left:2px;">ERM</span></div>' +
+  return '<div style="background:#0D1B2A;padding:32px 16px;font-family:-apple-system,Segoe UI,Public Sans,sans-serif;">' +
+    '<div style="max-width:560px;margin:0 auto;background:#F6F2E9;border:1px solid #D2CEC4;border-top:2px solid #B88C2E;border-radius:2px;padding:28px 24px;color:#0D1B2A;">' +
+    '<div style="font-size:18px;margin-bottom:24px;"><span style="font-family:Georgia,serif;font-style:italic;color:#B88C2E;">Mi</span><span style="font-weight:800;letter-spacing:0.02em;margin-left:2px;">ERM</span></div>' +
     innerHtml +
-    '<p style="font-size:12px;color:#93A0AC;margin-top:28px;">Mi ERM — Ecosistema nxt LVL · Evaluación de Control y Exposición Laboral</p>' +
+    '<p style="font-size:12px;color:#506070;margin-top:28px;">Mi ERM — Ecosistema nxt LVL · Evaluación de Control y Exposición Laboral</p>' +
     '</div></div>';
 }
 
 function buildProspectEmailHtml(contactInfo, result, analysisText) {
   const focosHtml = result.focos.slice(0, 5).map(function (f) {
-    return '<li style="margin-bottom:10px;"><strong>' + f.label + '</strong><br><span style="color:#93A0AC;font-size:14px;">' + f.fix + '</span></li>';
+    return '<li style="margin-bottom:10px;"><strong>' + f.label + '</strong><br><span style="color:#506070;font-size:14px;">' + f.fix + '</span></li>';
   }).join('');
 
   const inner =
-    '<p style="font-size:13px;color:#D7AC5C;font-weight:600;margin:0 0 6px;">' + result.badgeText.toUpperCase() + '</p>' +
+    '<p style="font-size:13px;color:#886215;font-weight:600;margin:0 0 6px;">' + result.badgeText.toUpperCase() + '</p>' +
     '<h1 style="font-family:Georgia,serif;font-size:24px;margin:0 0 8px;">' + result.title + '</h1>' +
-    '<p style="font-size:14px;color:#93A0AC;margin:0 0 20px;">Índice de Control: ' + result.indice + ' / 100</p>' +
-    '<p style="font-size:15px;color:#93A0AC;line-height:1.6;margin:0 0 28px;">' + result.text + '</p>' +
-    '<p style="font-size:13px;color:#D7AC5C;font-weight:600;margin:0 0 14px;">SU CONTROL POR DOMINIO</p>' +
-    domainBarsHtml(result.domainScores) +
-    '<p style="font-size:12px;color:#93A0AC;margin:0 0 28px;">Cada barra va de 0 (sin control) a 100 (control total).</p>' +
-    '<p style="font-size:13px;color:#D7AC5C;font-weight:600;margin:0 0 14px;">SU ANÁLISIS DETALLADO</p>' +
+    '<p style="font-size:14px;color:#506070;margin:0 0 20px;">Índice de Control: ' + result.indice + ' / 100</p>' +
+    '<p style="font-size:15px;color:#506070;line-height:1.6;margin:0 0 28px;">' + result.text + '</p>' +
+    '<p style="font-size:13px;color:#886215;font-weight:600;margin:0 0 14px;">SU ANÁLISIS DETALLADO</p>' +
     formatAnalysisHtml(analysisText) +
-    '<p style="font-size:13px;color:#D7AC5C;font-weight:600;margin:24px 0 14px;">SUS FOCOS PRIORITARIOS</p>' +
+    '<p style="font-size:13px;color:#886215;font-weight:600;margin:24px 0 14px;">SUS FOCOS PRIORITARIOS</p>' +
     '<ul style="padding-left:18px;margin:0 0 24px;">' + focosHtml + '</ul>' +
-    '<p style="font-size:12px;color:#93A0AC;opacity:0.85;line-height:1.5;">Esta evaluación identifica condiciones de gestión y posibles áreas de exposición, con base en artículos del Código de Trabajo de Costa Rica. No constituye una opinión jurídica ni sustituye la revisión de un profesional en Derecho para situaciones específicas.</p>';
+    '<p style="font-size:12px;color:#506070;opacity:0.85;line-height:1.5;">Esta evaluación identifica condiciones de gestión y posibles áreas de exposición, con base en artículos del Código de Trabajo de Costa Rica. No constituye una opinión jurídica ni sustituye la revisión de un profesional en Derecho para situaciones específicas.</p>';
 
   return emailShell(inner);
 }
 
 function buildWarrenEmailHtml(contactInfo, result, analysisText) {
   const inner =
-    '<p style="font-size:13px;color:#D7AC5C;font-weight:600;margin:0 0 14px;">NUEVO LEAD — LISTO PARA LA LLAMADA</p>' +
+    '<p style="font-size:13px;color:#886215;font-weight:600;margin:0 0 14px;">NUEVO LEAD — LISTO PARA LA LLAMADA</p>' +
     '<table style="width:100%;border-collapse:collapse;margin-bottom:24px;font-size:14px;">' +
-    '<tr><td style="padding:4px 0;color:#93A0AC;">Nombre</td><td style="padding:4px 0;">' + (contactInfo.nombre || '—') + '</td></tr>' +
-    '<tr><td style="padding:4px 0;color:#93A0AC;">Empresa</td><td style="padding:4px 0;">' + (contactInfo.empresa || '—') + '</td></tr>' +
-    '<tr><td style="padding:4px 0;color:#93A0AC;">Puesto</td><td style="padding:4px 0;">' + (contactInfo.puesto || '—') + '</td></tr>' +
-    '<tr><td style="padding:4px 0;color:#93A0AC;">Correo</td><td style="padding:4px 0;">' + (contactInfo.correo || '—') + '</td></tr>' +
-    '<tr><td style="padding:4px 0;color:#93A0AC;">WhatsApp</td><td style="padding:4px 0;">' + (contactInfo.whatsapp || '—') + '</td></tr>' +
-    '<tr><td style="padding:4px 0;color:#93A0AC;">Colaboradores</td><td style="padding:4px 0;">' + (contactInfo.colaboradores || '—') + '</td></tr>' +
+    '<tr><td style="padding:4px 0;color:#506070;">Nombre</td><td style="padding:4px 0;">' + (contactInfo.nombre || '—') + '</td></tr>' +
+    '<tr><td style="padding:4px 0;color:#506070;">Empresa</td><td style="padding:4px 0;">' + (contactInfo.empresa || '—') + '</td></tr>' +
+    '<tr><td style="padding:4px 0;color:#506070;">Puesto</td><td style="padding:4px 0;">' + (contactInfo.puesto || '—') + '</td></tr>' +
+    '<tr><td style="padding:4px 0;color:#506070;">Correo</td><td style="padding:4px 0;">' + (contactInfo.correo || '—') + '</td></tr>' +
+    '<tr><td style="padding:4px 0;color:#506070;">WhatsApp</td><td style="padding:4px 0;">' + (contactInfo.whatsapp || '—') + '</td></tr>' +
+    '<tr><td style="padding:4px 0;color:#506070;">Colaboradores</td><td style="padding:4px 0;">' + (contactInfo.colaboradores || '—') + '</td></tr>' +
     '</table>' +
     '<h1 style="font-family:Georgia,serif;font-size:22px;margin:0 0 8px;">' + result.title + '</h1>' +
-    '<p style="font-size:14px;color:#93A0AC;margin:0 0 20px;">Índice de Control: ' + result.indice + ' / 100 · ' + result.badgeText +
+    '<p style="font-size:14px;color:#506070;margin:0 0 20px;">Índice de Control: ' + result.indice + ' / 100 · ' + result.badgeText +
     (result.breakerHits >= 1 ? ' · ' + result.breakerHits + ' hallazgo(s) crítico(s)' : '') + '</p>' +
-    '<p style="font-size:13px;color:#D7AC5C;font-weight:600;margin:0 0 14px;">CONTROL POR DOMINIO</p>' +
-    domainBarsHtml(result.domainScores) +
-    '<p style="font-size:13px;color:#D7AC5C;font-weight:600;margin:24px 0 14px;">ANÁLISIS COMPLETO</p>' +
+    '<p style="font-size:13px;color:#886215;font-weight:600;margin:0 0 14px;">ANÁLISIS COMPLETO</p>' +
     formatAnalysisHtml(analysisText);
 
   return emailShell(inner);
