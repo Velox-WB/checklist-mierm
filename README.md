@@ -1,4 +1,4 @@
-# Evaluación de Control y Exposición Laboral — Mi ERM
+# Evaluación de Control y Exposición Laboral — Pollux
 
 Herramienta de cierre comercial: 25 controles basados en el Código de Trabajo
 de Costa Rica, con scoring ponderado, reglas de ruptura y gráfico de telaraña
