@@ -15,23 +15,23 @@ const QUESTIONS_DATA = require('../questions-data.json');
 const BANDS = {
   protegido: {
     badgeText: 'Protegido',
-    title: 'Su relación laboral está genuinamente bajo control.',
-    text: 'Los controles fundamentales del Código de Trabajo están documentados y son demostrables. Todavía vale la pena cerrar los focos puntuales de abajo, pero no está operando a ciegas.'
+    title: 'Sus respuestas reflejan una base sólida de control.',
+    text: 'Sus respuestas indican que cuenta con controles documentados. Revise los focos puntuales para consolidarlos; este resultado no certifica cumplimiento legal.'
   },
   transicion: {
     badgeText: 'En transición',
-    title: 'Hay más de un punto ciego real en su gestión.',
-    text: 'Ninguno de estos hallazgos es, por sí solo, una crisis — pero juntos representan una exposición que un inspector de trabajo, o un colaborador con asesoría legal, puede encontrar sin mucho esfuerzo.'
+    title: 'Sus respuestas señalan áreas de control por fortalecer.',
+    text: 'Los controles declarados muestran avances y brechas que conviene revisar, priorizando la documentación y el seguimiento de decisiones.'
   },
   expuesto: {
     badgeText: 'Expuesto',
-    title: 'Su empresa está corriendo un riesgo real, no hipotético.',
-    text: 'Varias obligaciones básicas del Código de Trabajo no tienen un control demostrable hoy. Esto no se resuelve con más cuidado — necesita un proceso y un sistema que no dependa de la memoria de una sola persona.'
+    title: 'Sus respuestas indican una exposición que requiere atención.',
+    text: 'Las respuestas sugieren brechas en el respaldo de procesos laborales. Ordenar registros, responsabilidades y seguimiento puede ayudarle a preparar mejor su empresa.'
   },
   critico: {
     badgeText: 'Crítico',
-    title: 'Esto ya no es una alerta preventiva — es una situación activa.',
-    text: 'La combinación de hallazgos de abajo es exactamente el patrón que termina en una demanda laboral costosa. Cada uno tiene una solución concreta, y se puede empezar a cerrar la brecha esta misma semana.'
+    title: 'Hay señales prioritarias que conviene revisar profesionalmente.',
+    text: 'La combinación de respuestas activa criterios de atención prioritaria. Revise los hallazgos con los profesionales correspondientes y defina acciones concretas para reducir las brechas identificadas.'
   }
 };
 
@@ -105,13 +105,13 @@ function buildAnalysisPrompt(contactInfo, result) {
   }).join('\n');
 
   const focosResumen = result.focos.map(function (f) {
-    return '- [' + f.cat + '] ' + f.label + ' → Cómo lo resuelve Mi ERM: ' + f.fix;
+    return '- [' + f.cat + '] ' + f.label + ' → Cómo lo resuelve Pollux: ' + f.fix;
   }).join('\n');
 
-  return 'Sos el analista de Mi ERM (una plataforma de gestión de relación laboral para pymes de Costa Rica, ' +
+  return 'Sos el analista de Pollux (una plataforma de gestión de relación laboral para pymes de Costa Rica, ' +
     'basada en el Código de Trabajo). Un Gerente General completó una "Evaluación de Control y Exposición Laboral" ' +
     'de 25 controles. Generá un análisis ejecutivo personalizado en español de Costa Rica, en tono directo y ' +
-    'profesional (no alarmista, no genérico), dirigido a: ' + (contactInfo.nombre || 'el Gerente General') +
+    'profesional, respetuoso y orientado a soluciones (no alarmista, no genérico; use usted y describa indicios basados en respuestas, sin juzgar al empresario), dirigido a: ' + (contactInfo.nombre || 'el Gerente General') +
     ', de la empresa ' + (contactInfo.empresa || '—') + ' (' + (contactInfo.colaboradores || 'tamaño no especificado') +
     ' colaboradores).\n\n' +
     'RESULTADO GENERAL:\n' +
@@ -125,7 +125,7 @@ function buildAnalysisPrompt(contactInfo, result) {
     '1. Diagnóstico ejecutivo (2-3 oraciones, directo, sin rodeos)\n' +
     '2. Los 3-4 riesgos más importantes y qué significan concretamente para el negocio (legal, financiero, operativo — no solo repetir el hallazgo, explicar la consecuencia real)\n' +
     '3. Qué pasaría si esto no se corrige en los próximos meses (escenario realista, no catastrofista)\n' +
-    '4. Cómo Mi ERM resuelve específicamente estos hallazgos (usando los mapeos de "Cómo lo resuelve Mi ERM" de arriba)\n' +
+    '4. Cómo Pollux resuelve específicamente estos hallazgos (usando los mapeos de "Cómo lo resuelve Pollux" de arriba)\n' +
     '5. Una recomendación clara de siguiente paso\n\n' +
     'Extensión: 400-600 palabras. No inventes cifras de costos de demandas ni des asesoría legal específica — ' +
     'cerrá con una nota breve de que esto es una evaluación de gestión, no una opinión jurídica.';
@@ -169,11 +169,11 @@ function formatAnalysisHtml(analysisText) {
 }
 
 function emailShell(innerHtml) {
-  return '<div style="background:#0D1B2A;padding:32px 16px;font-family:-apple-system,Segoe UI,Public Sans,sans-serif;">' +
-    '<div style="max-width:560px;margin:0 auto;background:#F6F2E9;border:1px solid #D2CEC4;border-top:2px solid #B88C2E;border-radius:2px;padding:28px 24px;color:#0D1B2A;">' +
-    '<div style="font-size:18px;margin-bottom:24px;"><span style="font-family:Georgia,serif;font-style:italic;color:#B88C2E;">Mi</span><span style="font-weight:800;letter-spacing:0.02em;margin-left:2px;">ERM</span></div>' +
+  return '<div style="background:#F5F7FA;padding:32px 16px;font-family:-apple-system,Segoe UI,Public Sans,sans-serif;">' +
+    '<div style="max-width:560px;margin:0 auto;background:#FFFFFF;border:1px solid #DFE5EC;border-top:2px solid #B8862E;border-radius:2px;padding:28px 24px;color:#12202F;">' +
+    '<div style="font-size:18px;margin-bottom:24px;"><span style="font-family:Arial,sans-serif;font-weight:500;font-size:36px;letter-spacing:-2px;">pollux</span></div>' +
     innerHtml +
-    '<p style="font-size:12px;color:#506070;margin-top:28px;">Mi ERM — Ecosistema nxt LVL · Evaluación de Control y Exposición Laboral</p>' +
+    '<p style="font-size:12px;color:#506070;margin-top:28px;">Pollux es una Marca Registrada. Derechos Reservados.</p>' +
     '</div></div>';
 }
 
@@ -182,7 +182,7 @@ function buildRadarEmailHtml(result) {
     return '<tr><td style="padding:5px 0;color:#506070;">' + String(index + 1).padStart(2, '0') + ' / ' + escapeAnswerHtml(domain.label) + '</td><td style="padding:5px 0;text-align:right;font-weight:600;">' + domain.value + '/100</td></tr>';
   }).join('');
   return '<h2 style="font-family:Georgia,serif;font-size:22px;margin:28px 0 12px;">Su control por dominio</h2>' +
-    '<img src="cid:mierm-radar" width="480" alt="Gráfico de telaraña del control por dominio. Valores detallados en la tabla siguiente." style="display:block;width:100%;max-width:480px;height:auto;margin:auto;">' +
+    '<img src="cid:pollux-radar" width="480" alt="Gráfico de telaraña del control por dominio. Valores detallados en la tabla siguiente." style="display:block;width:100%;max-width:480px;height:auto;margin:auto;">' +
     '<table role="presentation" style="width:100%;font-size:12px;border-collapse:collapse;">' + legend + '</table>' +
     '<p style="font-size:12px;color:#506070;margin:12px 0 24px;">Cada eje va de 0 a 100. Cuanto más cerca del centro, menor es el control declarado en ese dominio.</p>';
 }
@@ -193,14 +193,14 @@ function buildProspectEmailHtml(contactInfo, result, analysisText) {
   }).join('');
 
   const inner =
-    '<p style="font-size:13px;color:#886215;font-weight:600;margin:0 0 6px;">' + result.badgeText.toUpperCase() + '</p>' +
+    '<p style="font-size:13px;color:#806022;font-weight:600;margin:0 0 6px;">' + result.badgeText.toUpperCase() + '</p>' +
     '<h1 style="font-family:Georgia,serif;font-size:24px;margin:0 0 8px;">' + result.title + '</h1>' +
     '<p style="font-size:14px;color:#506070;margin:0 0 20px;">Índice de Control: ' + result.indice + ' / 100</p>' +
     '<p style="font-size:15px;color:#506070;line-height:1.6;margin:0 0 28px;">' + result.text + '</p>' +
     buildRadarEmailHtml(result) +
-    '<p style="font-size:13px;color:#886215;font-weight:600;margin:0 0 14px;">SU ANÁLISIS DETALLADO</p>' +
+    '<p style="font-size:13px;color:#806022;font-weight:600;margin:0 0 14px;">SU ANÁLISIS DETALLADO</p>' +
     formatAnalysisHtml(analysisText) +
-    '<p style="font-size:13px;color:#886215;font-weight:600;margin:24px 0 14px;">SUS FOCOS PRIORITARIOS</p>' +
+    '<p style="font-size:13px;color:#806022;font-weight:600;margin:24px 0 14px;">SUS FOCOS PRIORITARIOS</p>' +
     '<ul style="padding-left:18px;margin:0 0 24px;">' + focosHtml + '</ul>' +
     '<p style="font-size:12px;color:#506070;opacity:0.85;line-height:1.5;">Esta evaluación identifica condiciones de gestión y posibles áreas de exposición, con base en artículos del Código de Trabajo de Costa Rica. No constituye una opinión jurídica ni sustituye la revisión de un profesional en Derecho para situaciones específicas.</p>';
 
@@ -219,8 +219,8 @@ function buildAnswersEmailHtml(answers) {
     const value = (typeof raw === 'number' || (typeof raw === 'string' && raw.trim() !== '')) ? Number(raw) : NaN;
     const option = question.opts.find(function (item) { return item[1] === value; });
     const answerText = option ? option[0] : 'Respuesta no válida o no disponible';
-    return '<tr><td style="padding:18px 0;border-top:1px solid #D2CEC4;">' +
-      '<p style="margin:0 0 8px;font-size:11px;color:#886215;">' + (index + 1) + ' / ' + escapeAnswerHtml(question.cat) + '</p>' +
+    return '<tr><td style="padding:18px 0;border-top:1px solid #DFE5EC;">' +
+      '<p style="margin:0 0 8px;font-size:11px;color:#806022;">' + (index + 1) + ' / ' + escapeAnswerHtml(question.cat) + '</p>' +
       '<p style="margin:0 0 8px;font-size:14px;font-weight:600;line-height:1.6;">' + escapeAnswerHtml(question.text) + '</p>' +
       '<p style="margin:0;font-size:14px;line-height:1.6;color:#506070;"><strong>Respuesta:</strong> ' + escapeAnswerHtml(answerText) + '</p>' +
       '</td></tr>';
@@ -232,7 +232,7 @@ function buildAnswersEmailHtml(answers) {
 
 function buildWarrenEmailHtml(contactInfo, result, analysisText, answers) {
   const inner =
-    '<p style="font-size:13px;color:#886215;font-weight:600;margin:0 0 14px;">NUEVO LEAD — LISTO PARA LA LLAMADA</p>' +
+    '<p style="font-size:13px;color:#806022;font-weight:600;margin:0 0 14px;">NUEVO LEAD — LISTO PARA LA LLAMADA</p>' +
     '<table style="width:100%;border-collapse:collapse;margin-bottom:24px;font-size:14px;">' +
     '<tr><td style="padding:4px 0;color:#506070;">Nombre</td><td style="padding:4px 0;">' + (contactInfo.nombre || '—') + '</td></tr>' +
     '<tr><td style="padding:4px 0;color:#506070;">Empresa</td><td style="padding:4px 0;">' + (contactInfo.empresa || '—') + '</td></tr>' +
@@ -245,7 +245,7 @@ function buildWarrenEmailHtml(contactInfo, result, analysisText, answers) {
     '<p style="font-size:14px;color:#506070;margin:0 0 20px;">Índice de Control: ' + result.indice + ' / 100 · ' + result.badgeText +
     (result.breakerHits >= 1 ? ' · ' + result.breakerHits + ' hallazgo(s) crítico(s)' : '') + '</p>' +
     buildRadarEmailHtml(result) +
-    '<p style="font-size:13px;color:#886215;font-weight:600;margin:0 0 14px;">ANÁLISIS COMPLETO</p>' +
+    '<p style="font-size:13px;color:#806022;font-weight:600;margin:0 0 14px;">ANÁLISIS COMPLETO</p>' +
     formatAnalysisHtml(analysisText) + buildAnswersEmailHtml(answers);
 
   return emailShell(inner);
@@ -259,8 +259,9 @@ async function sendEmail(to, subject, html, attachments) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      from: process.env.RESEND_FROM_EMAIL || 'Mi ERM <reporte@mierm.work>',
+      from: process.env.RESEND_FROM_EMAIL || 'Pollux <checklist@pollux.work>',
       to: [to],
+      reply_to: process.env.WARREN_EMAIL || 'info@warrenbenavides.com',
       subject: subject,
       html: html,
       attachments: attachments
@@ -297,7 +298,7 @@ module.exports = async function handler(req, res) {
     const prompt = buildAnalysisPrompt(contactInfo, result);
     const analysisText = await callClaude(prompt);
 
-    const attachments = [{ filename: "control-por-dominio.png", content: radarPng(result.domainScores).toString("base64"), content_id: "mierm-radar" }];
+    const attachments = [{ filename: "control-por-dominio.png", content: radarPng(result.domainScores).toString("base64"), content_id: "pollux-radar" }];
     const prospectHtml = buildProspectEmailHtml(contactInfo, result, analysisText);
     const warrenHtml = buildWarrenEmailHtml(contactInfo, result, analysisText, answers);
 
@@ -308,7 +309,7 @@ module.exports = async function handler(req, res) {
         prospectHtml, attachments
       ),
       sendEmail(
-        process.env.WARREN_EMAIL,
+        process.env.WARREN_EMAIL || 'info@warrenbenavides.com',
         'Nuevo lead: ' + (contactInfo.empresa || contactInfo.nombre || 'sin nombre') + ' — ' + result.badgeText,
         warrenHtml, attachments
       )

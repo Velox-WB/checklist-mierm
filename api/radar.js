@@ -2,7 +2,7 @@
 const zlib = require('node:zlib');
 module.exports = function radarPng(domains) {
   const W=640,H=520,cx=320,cy=255,r=180, pixels=Buffer.alloc(W*H*3);
-  const bg=[246,242,233],grid=[204,201,192],gold=[184,140,46],ink=[13,27,42];
+  const bg=[255,255,255],grid=[223,229,236],gold=[184,134,46],ink=[18,32,47];
   for(let i=0;i<pixels.length;i+=3)bg.forEach((v,k)=>pixels[i+k]=v);
   function pixel(x,y,color){x=Math.round(x);y=Math.round(y);if(x>=0&&x<W&&y>=0&&y<H)for(let k=0;k<3;k++)pixels[(y*W+x)*3+k]=color[k];}
   function line(a,b,color,width=1){const steps=Math.ceil(Math.max(Math.abs(b[0]-a[0]),Math.abs(b[1]-a[1])));for(let i=0;i<=steps;i++){const t=steps?i/steps:0;for(let dx=-Math.floor(width/2);dx<=Math.floor(width/2);dx++)for(let dy=-Math.floor(width/2);dy<=Math.floor(width/2);dy++)pixel(a[0]+(b[0]-a[0])*t+dx,a[1]+(b[1]-a[1])*t+dy,color);}}
@@ -10,7 +10,7 @@ module.exports = function radarPng(domains) {
   for(let level=1;level<=5;level++)for(let i=0;i<n;i++)line(point(i,level/5),point((i+1)%n,level/5),grid);
   for(let i=0;i<n;i++)line([cx,cy],point(i,1),grid);
   const pts=domains.map((d,i)=>point(i,Math.max(0,Math.min(100,Number(d.value)||0))/100));
-  for(let y=cy-r;y<=cy+r;y++)for(let x=cx-r;x<=cx+r;x++){let inside=false;for(let i=0,j=n-1;i<n;j=i++){const a=pts[i],b=pts[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])inside=!inside;}if(inside)pixel(x,y,[230,221,198]);}
+  for(let y=cy-r;y<=cy+r;y++)for(let x=cx-r;x<=cx+r;x++){let inside=false;for(let i=0,j=n-1;i<n;j=i++){const a=pts[i],b=pts[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])inside=!inside;}if(inside)pixel(x,y,[246,240,227]);}
   // Redraw grid on top of the translucent-style fill.
   for(let level=1;level<=5;level++)for(let i=0;i<n;i++)line(point(i,level/5),point((i+1)%n,level/5),grid);
   for(let i=0;i<n;i++){line([cx,cy],point(i,1),grid);line(pts[i],pts[(i+1)%n],gold,2);for(let dx=-5;dx<=5;dx++)for(let dy=-5;dy<=5;dy++)if(dx*dx+dy*dy<=25)pixel(pts[i][0]+dx,pts[i][1]+dy,gold);}
